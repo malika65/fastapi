@@ -1,5 +1,5 @@
 venv/
-*.sqlite3
+*Db.*
 *.log
 *.pot
 *.pyc
