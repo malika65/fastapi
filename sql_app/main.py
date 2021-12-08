@@ -53,7 +53,7 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     items = crud.get_items(db, skip=skip, limit=limit)
     return items
 
-# check plain and hashed passwords
-@app.post("/check_pass/")
-def read_items(plainpass: str, hashpass: str):
+# compare plain and hashed passwords
+@app.post("/compare_pass/")
+def compare_pass(plainpass: str, hashpass: str):
     return crud.verify_password(plainpass, hashpass)
