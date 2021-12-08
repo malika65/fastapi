@@ -6,8 +6,11 @@ from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 import schemas, models, crud
 models.Base.metadata.create_all(bind=engine)
+from cbfa import ClassBased
 
 app = FastAPI()
+
+wrapper = ClassBased(app)
 
 
 #Dependency
@@ -41,17 +44,21 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-@app.post("/users/{user_id}/items/", response_model=schemas.Item)
-def create_item_for_user(
-    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
-):
-    return crud.create_user_item(db=db, item=item, user_id=user_id)
+@wrapper('/items')
+class ItemCreateView:
+
+    def get(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+        items = crud.get_items(db, skip=skip, limit=limit)
+        return items
+
+    def post(
+        user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
+    ):
+        return crud.create_user_item(db=db, item=item, user_id=user_id)
 
 
-@app.get("/items/", response_model=List[schemas.Item])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items
+
+
 
 # compare plain and hashed passwords
 @app.post("/compare_pass/")
